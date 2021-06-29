@@ -1,0 +1,85 @@
+extends KinematicBody2D
+
+const UP = Vector2(0,-1)
+var GRAVITY = 20
+const MAXFALLSPEED = 135
+const MAXSPEED = 130
+const FRICTION = 500
+const JUMPFORCE = 270
+const FASTFALLFORCE = 200
+var health = 3
+
+var motion = Vector2()
+var jumps_left = 2
+var poop_left = 3
+var POOP_SCENE = preload("res://Characters/Player_Bullet.tscn")
+#var icon1 = preload("res://neutralgirish.png")
+#var icon2 = preload("res://happygirish.png")
+func _ready():
+	pass
+func poop():
+	var poop = POOP_SCENE.instance()
+	poop.position = get_position()
+	poop.position.y += 10
+	get_parent().add_child(poop)
+	
+func _physics_process(delta):
+	
+	
+	motion.y += GRAVITY
+	if Input.is_action_pressed("glide"):
+		motion.y += -1 * (GRAVITY/1.5)
+	if motion.y > MAXFALLSPEED:
+		motion.y = MAXFALLSPEED
+	if Input.is_action_pressed("ui_right"):
+		motion.x = MAXSPEED
+	elif Input.is_action_pressed("ui_left"):
+		motion.x = -MAXSPEED
+		
+	else:
+		motion = motion.move_toward(Vector2.ZERO, FRICTION * delta)
+	if is_on_floor():
+		jumps_left = 2
+		poop_left = 3
+		
+	if Input.is_action_just_pressed("ui_up"):
+		if jumps_left > 0:
+			motion.y = -JUMPFORCE
+			jumps_left -= 1
+	if Input.is_action_just_pressed("ui_down"):
+		motion.y = MAXSPEED
+	#if Input.is_action_just_pressed("glide"):
+		#motion.y += -1 * GRAVITY
+	motion = move_and_slide(motion, UP)
+	if Input.is_action_just_pressed("attack"):
+		if poop_left > 0:
+			poop()
+			poop_left -=1
+	#var tran = get_global_transform()
+	#if Input.is_action_just_pressed("jump"):
+		#var my_sprite = get_node("neutralgirish")
+		#my_sprite.set_texture(icon2)
+		#my_sprite.scale.x *= 1.1
+		#my_sprite.scale.y *= 1.1
+	#if Input.is_action_just_pressed("ui_cancel"):
+		#var my_sprite = get_node("neutralgirish")
+		#my_sprite.set_texture(icon1)
+		#my_sprite.scale.x *= 0.75
+		#my_sprite.scale.y *= 0.75
+	#if Input.is_action_just_pressed("ui_focus_prev"):
+		#var layer = AudioStreamPlayer.new()
+		#self.add_child(layer)
+		#layer.stream = load("res://Audio/Flume Birthday ID.ogg")
+		#layer.play()
+		
+
+func _on_Area2D_body_entered(body):
+	var bullet = body
+	
+	if health == 0:
+		queue_free()
+	else:
+		health = health - 1
+	print(1)
+	bullet.queue_free()
+	
