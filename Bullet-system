@@ -1,0 +1,28 @@
+extends Area2D
+var move = Vector2.ZERO
+var look_vec = Vector2.ZERO
+var player = null
+var speed = 3
+func _ready():
+	look_vec = player.position - global_position
+func _physics_process(delta):
+	move = move.move_toward(look_vec, delta)
+	move = move.normalized() * speed
+	position += move
+func _on_hitbox_body_entered(body):
+	#var t = Timer.new()
+	#t.set_wait_time(3)
+	#t.set_one_shot(true)
+	#self.add_child(t)
+	#t.start()
+	#yield(t, "timeout")
+	#print(t)
+	#yield(get_tree().create_timer(1.0), "timeout")
+	#var sprite = get_node("KinematicBody2D/Sprite")
+	#if sprite != null:
+		#sprite.queue_free()
+	#queue_free()
+	pass
+func _on_disappear_body_entered(body):
+	pass
+	#queue_free() # Replace with function body.
