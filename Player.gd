@@ -127,12 +127,11 @@ func climb_state(delta):
 
 func _on_Area2D_body_entered(body):
 	var bullet = body
-	
 	if health == 0:
 		queue_free()
 	else:
 		animatedSprite.animation = "Hit"
-		health = health - 1
+		health -= 1
 	print(1)
 	bullet.queue_free()
 	
