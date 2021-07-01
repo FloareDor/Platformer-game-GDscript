@@ -12,6 +12,8 @@ var direction = 1
 var player = null
 var count = rpm
 const rpm = 100
+var c = false
+var flag = true
 enum {  # list
 	IDLE,
 	ATTACK,
@@ -34,6 +36,8 @@ func _physics_process(delta): # delta = time that the last fram took to process
 func dead_state(delt):
 	velocity = Vector2.ZERO
 func idle_state(delta):
+	if c == false:
+		animatedSprite.flip_h = flag
 	velocity = Vector2.ZERO
 	velocity.x = SPEED * direction
 	velocity.y += GRAVITY
@@ -44,8 +48,11 @@ func idle_state(delta):
 		$FallOffCast.position.x *= -1
 		if animatedSprite.flip_h == false:
 			animatedSprite.flip_h = true
+			flag = true
+			
 		else:
 			animatedSprite.flip_h = false
+			flag = false
 	if $FallOffCast.is_colliding() == false:
 		direction = direction * -1
 		$FallOffCast.position.x *= -1
@@ -57,12 +64,13 @@ func idle_state(delta):
 	
 func attack_state(delta):
 	#var real_player = get_node("/root/Wssorld/player")
-	
-	animatedSprite.animation = "Idle"
 	if player.position.x > self.position.x:
 		animatedSprite.flip_h = false
 	else:
 		animatedSprite.flip_h = true
+		#c = true
+	animatedSprite.animation = "Idle"
+	
 	velocity = Vector2.ZERO
 	velocity.y += GRAVITY
 	if player != null:
@@ -87,6 +95,7 @@ func _on_Area2D_body_entered(body):
 func _on_Area2D_body_exited(body):
 	player = null
 	if state != DEAD:
+		c = false
 		state = IDLE
 
 func fire():
