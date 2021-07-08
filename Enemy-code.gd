@@ -16,8 +16,9 @@ var c = false
 var flag = true
 enum {  # list
 	IDLE,
+	CHASE,
 	ATTACK,
-	DEAD
+	DEAD,
 }
 var state = IDLE
 func _ready():
@@ -33,6 +34,8 @@ func _physics_process(delta): # delta = time that the last fram took to process
 			attack_state(delta)	
 		DEAD:
 			dead_state(delta)
+		CHASE:
+			chase_state(delta)
 func dead_state(delt):
 	velocity = Vector2.ZERO
 func idle_state(delta):
@@ -64,7 +67,7 @@ func idle_state(delta):
 	
 func attack_state(delta):
 	#var real_player = get_node("/root/Wssorld/player")
-	if player.position.x > self.position.x:
+	if player.position.x > position.x:
 		animatedSprite.flip_h = false
 	else:
 		animatedSprite.flip_h = true
@@ -86,12 +89,31 @@ func attack_state(delta):
 		#fire()
 	#if real_player:
 	#	var real_direction = (real_player.position - position).normalized()
+func chase_state(delta):
+	if player.position.x > position.x:
+		animatedSprite.flip_h = false
+	else:
+		animatedSprite.flip_h = true
+	velocity = Vector2.ZERO
+	#velocity.x = SPEED * direction
+	#velocity.y += GRAVITY
+	#velocity = move_and_slide(velocity, FLOOR)
+	if player!=null: # making the enemies chase the player
+		velocity = position.direction_to(player.position)*SPEED
+	else:
+		velocity = Vector2.ZERO
+	velocity = velocity.normalized()
+	velocity = move_and_collide(velocity)
+	#velocity = (player.position - position).normalized() * SPEED
+	#velocity = velocity.normalized()
+	#if abs(player.position.y - position.y) < 12:
+	#	velocity = move_and_collide(velocity)
 	
 func _on_Area2D_body_entered(body):
 	print("found him")
 	if body != self and state != DEAD:
 		player = body
-		state = ATTACK
+		state = CHASE
 func _on_Area2D_body_exited(body):
 	player = null
 	if state != DEAD:
@@ -99,12 +121,12 @@ func _on_Area2D_body_exited(body):
 		state = IDLE
 
 func fire():
-	animatedSprite.animation = "Attack"
+	#animatedSprite.animation = "Attack"
 	var bullet = BULLET_SCENE.instance()
 	bullet.position = get_position()
 	bullet.player = player
 	get_parent().add_child(bullet)
-	$Timer.set_wait_time(1)
+	#$Timer.set_wait_time(1)
 
 #func _on_Timer_timeout():
 #	if player!=null:
@@ -118,3 +140,18 @@ func _on_hurtbox_body_entered(body):
 	else:
 		state = DEAD
 	
+
+
+func _on_Area2D2_body_entered(body):
+	pass
+	#animatedSprite.animation = "Attack"
+	#_on_AnimatedSprite_animation_finished()
+	
+
+
+#func _on_Timer_timeout():
+	#state = ATTACK
+
+
+#func _on_AnimatedSprite_animation_finished():
+	#state = ATTACK
